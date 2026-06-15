@@ -145,7 +145,7 @@ public class ActionCombinedMinigame extends AbstractMinigameSession {
                 tension = Math.max(0.0, Math.min(1.0, tension));
                 boolean inGreenZone = tension >= 0.40 && tension <= 0.75;
 
-                // Obtenemos los colores desde la config de forma segura
+                // Obtenemos configuración de la BossBar
                 FisherConfig cfg = FisherConfig.get();
                 BossEvent.BossBarColor safeColor = BossEvent.BossBarColor.GREEN;
                 BossEvent.BossBarColor warnColor = BossEvent.BossBarColor.YELLOW;
@@ -154,19 +154,29 @@ public class ActionCombinedMinigame extends AbstractMinigameSession {
                 try { warnColor = BossEvent.BossBarColor.valueOf(cfg.getBossBarColorWarning().toUpperCase()); } catch(Exception ignored){}
                 try { dangerColor = BossEvent.BossBarColor.valueOf(cfg.getBossBarColorDanger().toUpperCase()); } catch(Exception ignored){}
 
+                // Mensaje base según el estado
+                String statusText = "";
                 if (inGreenZone) {
                     bossBar.setColor(safeColor);
-                    bossBar.setName(MessageUtil.literal("§a🎣 ¡Perfecto! Mantén ahí..."));
+                    statusText = "§a ¡Perfecto! Mantén ahí...";
                     ticksInGreen++;
                     if (ticksInGreen % 10 == 0) player.playNotifySound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.5f, 2.0f);
                 } else if (tension > 0.85 || tension < 0.15) {
                     bossBar.setColor(dangerColor);
-                    bossBar.setName(MessageUtil.literal("§c🎣 ¡Peligro! ¡Ajusta con SHIFT!"));
+                    statusText = "§c ¡Peligro! ¡Ajusta!";
                 } else {
                     bossBar.setColor(warnColor);
-                    bossBar.setName(MessageUtil.literal("§e🎣 ¡Sigue así!"));
+                    statusText = "§e ¡Sigue así!";
                 }
 
+                // CÁLCULO DEL DESLIZAMIENTO DEL ICONO
+                // Multiplicamos la tensión actual por los espacios máximos
+                int currentSpaces = (int) (tension * Math.max(1, cfg.getBossBarMaxSpaces()));
+                String slidingSpaces = " ".repeat(Math.max(0, currentSpaces));
+                String icon = cfg.getBossBarIcon();
+                
+                // Actualizamos el nombre inyectando los espacios dinámicos
+                bossBar.setName(MessageUtil.literal(slidingSpaces + icon + statusText));
                 bossBar.setProgress((float) tension);
 
                 if (ticksInGreen >= targetGreen) {
@@ -177,7 +187,7 @@ public class ActionCombinedMinigame extends AbstractMinigameSession {
                         callback.accept(FishingMinigame.MinigameResult.SUCCESS);
                         return false;
                     } else {
-                        startWaitPhase(player); // Siguiente fase (repite el clic y el shift)
+                        startWaitPhase(player); // Siguiente fase
                     }
                 } else if (tension >= 1.0 || tension <= 0.0) {
                     player.sendSystemMessage(MessageUtil.literal("§c[CobbleJobs] ¡El pez rompió el sedal en la fase " + (currentPhase+1) + "!"));
