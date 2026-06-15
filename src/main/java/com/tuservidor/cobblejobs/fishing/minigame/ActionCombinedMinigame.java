@@ -1,5 +1,6 @@
 package com.tuservidor.cobblejobs.fishing.minigame;
 
+import com.tuservidor.cobblejobs.config.FisherConfig;
 import com.tuservidor.cobblejobs.fishing.rarity.FishRarity;
 import com.tuservidor.cobblejobs.util.MessageUtil;
 import net.minecraft.network.chat.Component;
@@ -75,10 +76,19 @@ public class ActionCombinedMinigame extends AbstractMinigameSession {
         this.ticksInGreen = 0;
         
         if (this.bossBar == null) {
+            FisherConfig cfg = FisherConfig.get();
+            BossEvent.BossBarOverlay overlay;
+            try { overlay = BossEvent.BossBarOverlay.valueOf(cfg.getBossBarOverlay().toUpperCase()); } 
+            catch (Exception e) { overlay = BossEvent.BossBarOverlay.PROGRESS; }
+
+            BossEvent.BossBarColor warnColor;
+            try { warnColor = BossEvent.BossBarColor.valueOf(cfg.getBossBarColorWarning().toUpperCase()); } 
+            catch (Exception e) { warnColor = BossEvent.BossBarColor.YELLOW; }
+
             this.bossBar = new ServerBossEvent(
                 MessageUtil.literal("§e🎣 ¡Mantén la tensión! (Presiona SHIFT)"),
-                BossEvent.BossBarColor.YELLOW,
-                BossEvent.BossBarOverlay.PROGRESS
+                warnColor,
+                overlay
             );
         }
         this.bossBar.addPlayer(player);
@@ -135,16 +145,25 @@ public class ActionCombinedMinigame extends AbstractMinigameSession {
                 tension = Math.max(0.0, Math.min(1.0, tension));
                 boolean inGreenZone = tension >= 0.40 && tension <= 0.75;
 
+                // Obtenemos los colores desde la config de forma segura
+                FisherConfig cfg = FisherConfig.get();
+                BossEvent.BossBarColor safeColor = BossEvent.BossBarColor.GREEN;
+                BossEvent.BossBarColor warnColor = BossEvent.BossBarColor.YELLOW;
+                BossEvent.BossBarColor dangerColor = BossEvent.BossBarColor.RED;
+                try { safeColor = BossEvent.BossBarColor.valueOf(cfg.getBossBarColorSafe().toUpperCase()); } catch(Exception ignored){}
+                try { warnColor = BossEvent.BossBarColor.valueOf(cfg.getBossBarColorWarning().toUpperCase()); } catch(Exception ignored){}
+                try { dangerColor = BossEvent.BossBarColor.valueOf(cfg.getBossBarColorDanger().toUpperCase()); } catch(Exception ignored){}
+
                 if (inGreenZone) {
-                    bossBar.setColor(BossEvent.BossBarColor.GREEN);
+                    bossBar.setColor(safeColor);
                     bossBar.setName(MessageUtil.literal("§a🎣 ¡Perfecto! Mantén ahí..."));
                     ticksInGreen++;
                     if (ticksInGreen % 10 == 0) player.playNotifySound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.5f, 2.0f);
                 } else if (tension > 0.85 || tension < 0.15) {
-                    bossBar.setColor(BossEvent.BossBarColor.RED);
+                    bossBar.setColor(dangerColor);
                     bossBar.setName(MessageUtil.literal("§c🎣 ¡Peligro! ¡Ajusta con SHIFT!"));
                 } else {
-                    bossBar.setColor(BossEvent.BossBarColor.YELLOW);
+                    bossBar.setColor(warnColor);
                     bossBar.setName(MessageUtil.literal("§e🎣 ¡Sigue así!"));
                 }
 
