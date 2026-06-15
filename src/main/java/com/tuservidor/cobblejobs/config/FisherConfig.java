@@ -34,12 +34,21 @@ public class FisherConfig {
     private int afkThresholdTicks = 200;
     private int eventDurationTicks  = 3600;
     private int eventCooldownTicks  = 24000;
-    private int    rarityBonusEveryLevels  = 5;
-    private double rarityBonusPerStep      = 0.02; 
+    private int rarityBonusEveryLevels  = 5;
+    private double rarityBonusPerStep   = 0.02; 
     private boolean minigameEnabled = true;
     private double minigameSuccessMultiplier = 1.0;
     private double minigamePartialMultiplier = 0.6;
     private double minigameFailMultiplier    = 0.2;
+
+    // ── Configuración de la BossBar (Minijuego) ───────────────────────────
+    // Opciones Overlay: PROGRESS, NOTCHED_6, NOTCHED_10, NOTCHED_12, NOTCHED_20
+    private String bossBarOverlay = "NOTCHED_20"; 
+    // Opciones Color: BLUE, GREEN, PINK, PURPLE, RED, WHITE, YELLOW
+    private String bossBarColorSafe = "GREEN";  
+    private String bossBarColorWarning = "YELLOW";
+    private String bossBarColorDanger = "RED";
+
     private List<CollectionMilestone> collectionMilestones = defaultMilestones();
     private boolean broadcastLegendary = true;
     private boolean broadcastEpic = true;
