@@ -43,11 +43,15 @@ public class FisherConfig {
 
     // ── Configuración de la BossBar (Minijuego) ───────────────────────────
     // Opciones Overlay: PROGRESS, NOTCHED_6, NOTCHED_10, NOTCHED_12, NOTCHED_20
-    private String bossBarOverlay = "NOTCHED_20"; 
+    private String bossBarOverlay = "PROGRESS"; 
     // Opciones Color: BLUE, GREEN, PINK, PURPLE, RED, WHITE, YELLOW
-    private String bossBarColorSafe = "GREEN";  
-    private String bossBarColorWarning = "YELLOW";
-    private String bossBarColorDanger = "RED";
+    private String bossBarColorSafe = "WHITE";  
+    private String bossBarColorWarning = "WHITE";
+    private String bossBarColorDanger = "WHITE";
+    
+    // Configuración para el icono animado (Custom Font)
+    private String bossBarIcon = "🐟"; 
+    private int bossBarMaxSpaces = 45; 
 
     private List<CollectionMilestone> collectionMilestones = defaultMilestones();
     private boolean broadcastLegendary = true;
